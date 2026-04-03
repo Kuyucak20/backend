@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const { toJSON, paginate } = require("./plugins");
-const { roles } = require("../config/roles");
+const { COLLECTIONS } = require("../config/collections");
 
 const contactSchema = mongoose.Schema(
   {
@@ -19,6 +18,7 @@ const contactSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: COLLECTIONS.contacts,
   }
 );
 

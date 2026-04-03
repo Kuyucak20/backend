@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
+const { COLLECTIONS } = require('../config/collections');
 
 const landSchema = mongoose.Schema(
   {
@@ -59,6 +60,7 @@ const landSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: COLLECTIONS.lands,
   }
 );
 

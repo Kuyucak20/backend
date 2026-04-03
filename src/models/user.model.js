@@ -3,6 +3,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
+const { COLLECTIONS } = require('../config/collections');
 
 const userSchema = mongoose.Schema(
   {
@@ -101,6 +102,7 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: COLLECTIONS.users,
   }
 );
 

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+mongoose.set("bufferCommands", false);
+
 const app = require("./app");
 const config = require("./config/config");
 const logger = require("./config/logger");

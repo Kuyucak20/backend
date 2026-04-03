@@ -3,6 +3,19 @@ const path = require("path");
 const Joi = require("joi");
 
 dotenv.config({ path: path.join(__dirname, "../../.env") });
+
+/** Test ortamında veritabanı adına _test ekler. */
+function applyTestDatabaseSuffix(uri) {
+  if (!uri) return uri;
+  const q = uri.indexOf("?");
+  const pathAndHost = q === -1 ? uri : uri.slice(0, q);
+  const qs = q === -1 ? "" : uri.slice(q);
+  const m = pathAndHost.match(/^(mongodb(?:\+srv)?:\/\/[^/]+)\/([^/]*)$/);
+  if (!m) return uri;
+  const [, prefix, db] = m;
+  const newDb = db ? `${db}_test` : "test_db";
+  return `${prefix}/${newDb}${qs}`;
+}
 const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string()
@@ -41,16 +54,22 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
 
+const mongoUrl =
+  envVars.NODE_ENV === "test"
+    ? applyTestDatabaseSuffix(envVars.MONGODB_URL)
+    : envVars.MONGODB_URL;
+
 module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   mongoose: {
-    url: envVars.MONGODB_URL + (envVars.NODE_ENV === "test" ? "-test" : ""),
+    url: mongoUrl,
     options: {
       useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 20000,
+      maxPoolSize: 10,
     },
   },
   jwt: {

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
+const { COLLECTIONS } = require('../config/collections');
 
 const paymentSchema = mongoose.Schema(
   {
@@ -49,6 +50,7 @@ const paymentSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: COLLECTIONS.payments,
   }
 );
 
