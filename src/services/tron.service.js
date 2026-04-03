@@ -5,9 +5,10 @@ const { Payment, User } = require('../models');
 const WALLET_ADDRESS = 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt';
 const USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 const TRONGRID_URL = `https://api.trongrid.io/v1/accounts/${WALLET_ADDRESS}/transactions/trc20`;
-const POLL_INTERVAL = 30000; // 30 saniye
+const POLL_INTERVAL = 20000; // 20 saniye
 
-let lastCheckedTimestamp = Date.now();
+// Son işlenen transaction ID'lerini tut (tekrar işlemeyi önle)
+const processedTxIds = new Set();
 
 const checkTransactions = async () => {
   try {
@@ -18,7 +19,7 @@ const checkTransactions = async () => {
 
     if (pendingPayments.length === 0) return;
 
-    // Süresi dolmuş ödemeleri işaretle (30 dakika)
+    // Süresi dolmuş ödemeleri işaretle (2 saat)
     const now = new Date();
     for (const payment of pendingPayments) {
       if (payment.expiresAt && now > payment.expiresAt) {
@@ -30,23 +31,28 @@ const checkTransactions = async () => {
 
     // Aktif bekleyen ödemeleri al
     const activePending = pendingPayments.filter(
-      (p) => !p.expiresAt || now <= p.expiresAt
+      (p) => p.status === 'Beklemede' && (!p.expiresAt || now <= p.expiresAt)
     );
     if (activePending.length === 0) return;
 
-    // TronGrid'den son işlemleri çek
+    logger.info(`Checking TronGrid... ${activePending.length} pending payment(s). Amounts: [${activePending.map(p => p.uniqueAmount).join(', ')}]`);
+
+    // TronGrid'den SON işlemleri çek - min_timestamp KULLANMA, son 50 işlemi al
     const response = await axios.get(TRONGRID_URL, {
       params: {
         only_to: true,
         limit: 50,
-        min_timestamp: lastCheckedTimestamp - 60000, // 1 dakika geriye bak
         contract_address: USDT_CONTRACT,
       },
+      timeout: 10000,
     });
 
     const transactions = response.data?.data || [];
+    logger.info(`TronGrid returned ${transactions.length} transaction(s)`);
 
     for (const tx of transactions) {
+      // Bu işlemi daha önce işledik mi?
+      if (processedTxIds.has(tx.transaction_id)) continue;
       if (tx.to !== WALLET_ADDRESS) continue;
 
       // USDT 6 decimal
@@ -56,13 +62,19 @@ const checkTransactions = async () => {
       for (const payment of activePending) {
         if (payment.status !== 'Beklemede') continue;
 
-        // Tutarları karşılaştır (0.01 tolerans)
-        if (Math.abs(txAmount - payment.uniqueAmount) < 0.01) {
+        // Tutarları karşılaştır (0.001 tolerans - kuruş hassasiyeti)
+        const diff = Math.abs(txAmount - payment.uniqueAmount);
+        if (diff < 0.01) {
+          logger.info(`MATCH FOUND! TxAmount: ${txAmount}, PaymentAmount: ${payment.uniqueAmount}, Diff: ${diff}`);
+
           // Eşleşme bulundu - otomatik onayla
           payment.status = 'Onaylandı';
           payment.txHash = tx.transaction_id;
           payment.fromWallet = tx.from;
           await payment.save();
+
+          // İşlenmiş olarak işaretle
+          processedTxIds.add(tx.transaction_id);
 
           // Kullanıcı bakiyesini güncelle
           const user = await User.findById(payment.userId);
@@ -70,15 +82,13 @@ const checkTransactions = async () => {
             user.balance = (user.balance || 0) + payment.amount;
             await user.save();
             logger.info(
-              `Auto-confirmed payment: ${payment.id} - ${payment.amount} USDT for user ${user.username} (tx: ${tx.transaction_id})`
+              `AUTO-CONFIRMED: ${payment.amount} USDT for user ${user.username} (tx: ${tx.transaction_id})`
             );
           }
           break;
         }
       }
     }
-
-    lastCheckedTimestamp = Date.now();
   } catch (error) {
     logger.error(`TronGrid polling error: ${error.message}`);
   }
@@ -108,10 +118,10 @@ const generateUniqueAmount = async (baseAmount) => {
 };
 
 const startPolling = () => {
-  logger.info('TronGrid polling started - checking every 30 seconds');
+  logger.info('TronGrid polling started - checking every 20 seconds');
   setInterval(checkTransactions, POLL_INTERVAL);
-  // İlk kontrolü hemen yap
-  checkTransactions();
+  // İlk kontrolü 5 saniye sonra yap (DB bağlantısı settle olsun)
+  setTimeout(checkTransactions, 5000);
 };
 
 module.exports = {
