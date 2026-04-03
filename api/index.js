@@ -1,8 +1,18 @@
 const mongoose = require("mongoose");
 const app = require("../src/app");
 const config = require("../src/config/config");
+const { corsMiddleware } = require("../src/config/cors");
 
 let cachedConnectionPromise;
+
+function applyCors(req, res) {
+  return new Promise((resolve, reject) => {
+    corsMiddleware(req, res, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
 
 async function connectToDatabase() {
   if (mongoose.connection.readyState >= 1) {
@@ -20,6 +30,16 @@ async function connectToDatabase() {
 }
 
 module.exports = async (req, res) => {
+  try {
+    await applyCors(req, res);
+  } catch {
+    return res.status(500).end();
+  }
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   try {
     await connectToDatabase();
     return app(req, res);

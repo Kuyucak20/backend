@@ -3,10 +3,10 @@ const helmet = require("helmet");
 const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
-const cors = require("cors");
 const passport = require("passport");
 const httpStatus = require("http-status");
 const config = require("./config/config");
+const { corsMiddleware } = require("./config/cors");
 const morgan = require("./config/morgan");
 const { jwtStrategy } = require("./config/passport");
 const { authLimiter } = require("./middlewares/rateLimiter");
@@ -20,8 +20,12 @@ if (config.env !== "test") {
   app.use(morgan.errorHandler);
 }
 
-// set security HTTP headers
-app.use(helmet());
+// set security HTTP headers (cross-origin API: tarayıcıdan farklı origin istekleri için)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // parse json request body
 app.use(express.json());
@@ -36,9 +40,9 @@ app.use(mongoSanitize());
 // gzip compression
 app.use(compression());
 
-// enable cors
-app.use(cors());
-app.options("*", cors());
+// enable cors (Vercel serverless + yerel aynı kurallar)
+app.use(corsMiddleware);
+app.options("*", corsMiddleware);
 
 // jwt authentication
 app.use(passport.initialize());
