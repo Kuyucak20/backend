@@ -7,8 +7,18 @@ const ApiError = require('../utils/ApiError');
 const errorConverter = (err, req, res, next) => {
   let error = err;
   if (!(error instanceof ApiError)) {
+    if (error.code === 11000) {
+      const dupMsg =
+        error.keyPattern && Object.keys(error.keyPattern).length
+          ? `Bu kayit zaten var: ${Object.keys(error.keyPattern).join(', ')}`
+          : 'Bu e-posta, telefon veya kullanici adi zaten kullaniliyor';
+      error = new ApiError(httpStatus.CONFLICT, dupMsg, true, err.stack);
+      return next(error);
+    }
     const statusCode =
-      error.statusCode || error instanceof mongoose.Error ? httpStatus.BAD_REQUEST : httpStatus.INTERNAL_SERVER_ERROR;
+      error.statusCode || error instanceof mongoose.Error
+        ? httpStatus.BAD_REQUEST
+        : httpStatus.INTERNAL_SERVER_ERROR;
     const message = error.message || httpStatus[statusCode];
     error = new ApiError(statusCode, message, false, err.stack);
   }
@@ -31,9 +41,7 @@ const errorHandler = (err, req, res, next) => {
     ...(config.env === 'development' && { stack: err.stack }),
   };
 
-  if (config.env === 'development') {
-    logger.error(err);
-  }
+  logger.error(err);
 
   res.status(statusCode).send(response);
 };

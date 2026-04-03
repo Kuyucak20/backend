@@ -16,6 +16,9 @@ const register = {
     registerdate: Joi.string(),
     ipaddress: Joi.string(),
     referredBy: Joi.string().optional().allow(''),
+    /** Frontend'in gonderdigi davet kodu (referrer'in referralCode'u) */
+    referralCode: Joi.string().optional().allow(''),
+    wallet: Joi.string().optional().allow(''),
     usdtWallet: Joi.string().optional().allow(''),
   }),
 };

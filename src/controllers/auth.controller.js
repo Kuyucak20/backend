@@ -19,26 +19,31 @@ const register = catchAsync(async (req, res) => {
   req.body.description = '';
   req.body.balance = 0;
   req.body.avatar = '';
-  req.body.usdtWallet = req.body.usdtWallet || '';
+  req.body.usdtWallet = req.body.usdtWallet || req.body.wallet || '';
 
-  // Generate unique referral code
-  let referralCode;
+  const inviteCode = (req.body.referredBy || req.body.referralCode || '').trim() || undefined;
+
+  // Generate unique referral code (yeni kullanicinin kendi davet kodu)
+  let newReferralCode;
   let isUnique = false;
   while (!isUnique) {
-    referralCode = generateReferralCode();
-    const existing = await userService.getUserByReferralCode(referralCode);
+    newReferralCode = generateReferralCode();
+    const existing = await userService.getUserByReferralCode(newReferralCode);
     if (!existing) {
       isUnique = true;
     }
   }
-  req.body.referralCode = referralCode;
+  req.body.referralCode = newReferralCode;
   req.body.referralCount = 0;
+  if (inviteCode) {
+    req.body.referredBy = inviteCode;
+  }
 
   const user = await userService.createUser(req.body);
 
-  // Handle referral logic
-  if (req.body.referredBy) {
-    const referrer = await userService.getUserByReferralCode(req.body.referredBy);
+  // Handle referral logic (davet edenin kodu inviteCode)
+  if (inviteCode) {
+    const referrer = await userService.getUserByReferralCode(inviteCode);
     if (referrer) {
       const newReferralCount = referrer.referralCount + 1;
 
