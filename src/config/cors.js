@@ -9,6 +9,8 @@ function parseCorsOrigins() {
     "https://frontend-xi-blue-62.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://gelecekarsa.com",
+    "https://www.gelecekarsa.com",
   ];
   return [...new Set([...defaults, ...fromEnv])];
 }
