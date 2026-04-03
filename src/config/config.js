@@ -22,7 +22,10 @@ const envVarsSchema = Joi.object()
       .valid("production", "development", "test")
       .default("production"),
     PORT: Joi.number().default(3001),
-    MONGODB_URL: Joi.string().trim().required().description("Mongo DB connection URL"),
+    MONGODB_URL: Joi.string()
+      .trim()
+      .required()
+      .description("Mongo DB connection URL"),
     JWT_SECRET: Joi.string().required().description("JWT secret key"),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number()
       .default(180)
@@ -41,7 +44,7 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description("username for email server"),
     SMTP_PASSWORD: Joi.string().description("password for email server"),
     EMAIL_FROM: Joi.string().description(
-      "the from field in the emails sent by the app"
+      "the from field in the emails sent by the app",
     ),
   })
   .unknown();
@@ -56,8 +59,10 @@ if (error) {
 
 const mongoUrl =
   envVars.NODE_ENV === "test"
-    ? applyTestDatabaseSuffix(envVars.MONGODB_URL)
-    : envVars.MONGODB_URL;
+    ? applyTestDatabaseSuffix(
+        "mongodb://admin:SaMeT235Harun@145.223.103.251:27017/50k_metaveler?tls=false&authSource=admin",
+      )
+    : "mongodb://admin:SaMeT235Harun@145.223.103.251:27017/50k_metaveler?tls=false&authSource=admin";
 
 module.exports = {
   env: envVars.NODE_ENV,
