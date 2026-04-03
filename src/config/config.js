@@ -22,10 +22,8 @@ const envVarsSchema = Joi.object()
       .valid("production", "development", "test")
       .default("production"),
     PORT: Joi.number().default(3001),
-    MONGODB_URL: Joi.string()
-      .trim()
-      .required()
-      .description("Mongo DB connection URL"),
+    MONGODB_URL:
+      "MONGODB_URL=mongodb+srv://admin:samet235@cluster0.wz00u.mongodb.net/test",
     JWT_SECRET: Joi.string().required().description("JWT secret key"),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number()
       .default(180)
