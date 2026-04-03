@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const { paymentService, userService, tronService } = require('../services');
+const { paymentService, userService, tronService, settingsService } = require('../services');
 
 // Kullanıcı ödeme başlatır - benzersiz tutar üretilir
 const initiatePayment = catchAsync(async (req, res) => {
@@ -20,11 +20,12 @@ const initiatePayment = catchAsync(async (req, res) => {
     type: 'deposit',
   });
 
+  const walletAddress = await settingsService.getWalletAddress();
+
   if (existingPending) {
-    // Mevcut bekleyen ödemeyi döndür
     return res.send({
       payment: existingPending,
-      walletAddress: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+      walletAddress,
       message: 'Mevcut bekleyen odemeniz var. Asagidaki tutari gonderiniz.',
     });
   }
@@ -39,15 +40,15 @@ const initiatePayment = catchAsync(async (req, res) => {
     uniqueAmount,
     txHash: null,
     fromWallet: null,
-    toWallet: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+    toWallet: walletAddress,
     status: 'Beklemede',
     type: 'deposit',
-    expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 dakika süre
+    expiresAt: new Date(Date.now() + 30 * 60 * 1000),
   });
 
   res.status(httpStatus.CREATED).send({
     payment,
-    walletAddress: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+    walletAddress,
     message: `Lutfen tam olarak ${uniqueAmount} USDT gonderiniz. Odeme otomatik algilanacaktir.`,
   });
 });
@@ -90,6 +91,7 @@ const createDeposit = catchAsync(async (req, res) => {
 
   const uniqueAmount = await tronService.generateUniqueAmount(amount);
 
+  const walletAddr = await settingsService.getWalletAddress();
   const payment = await paymentService.createPayment({
     userId: user.id,
     username: user.username,
@@ -97,7 +99,7 @@ const createDeposit = catchAsync(async (req, res) => {
     uniqueAmount,
     txHash,
     fromWallet,
-    toWallet: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+    toWallet: walletAddr,
     status: 'Beklemede',
     type: 'deposit',
   });

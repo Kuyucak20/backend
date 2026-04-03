@@ -7,4 +7,5 @@ module.exports.COLLECTIONS = {
   tokens: "50k_tokens",
   payments: "50k_payments",
   contacts: "50k_contacts",
+  settings: "50k_settings",
 };

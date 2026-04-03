@@ -6,3 +6,4 @@ module.exports.landService = require('./land.service');
 module.exports.contactService = require('./contact.service');
 module.exports.paymentService = require('./payment.service');
 module.exports.tronService = require('./tron.service');
+module.exports.settingsService = require('./settings.service');

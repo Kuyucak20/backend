@@ -5,6 +5,7 @@ const docsRoute = require('./docs.route');
 const landRoute = require('./land.route');
 const publicRoute = require('./public.route');
 const paymentRoute = require('./payment.route');
+const settingsRoute = require('./settings.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -29,6 +30,10 @@ const defaultRoutes = [
   {
     path: '/payment',
     route: paymentRoute,
+  },
+  {
+    path: '/settings',
+    route: settingsRoute,
   },
 ];
 

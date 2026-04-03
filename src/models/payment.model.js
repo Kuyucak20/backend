@@ -31,7 +31,7 @@ const paymentSchema = mongoose.Schema(
     },
     toWallet: {
       type: String,
-      default: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+      default: null,
     },
     status: {
       type: String,

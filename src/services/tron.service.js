@@ -1,10 +1,9 @@
 const axios = require('axios');
 const logger = require('../config/logger');
-const { Payment, User } = require('../models');
+const { Payment, User, Settings } = require('../models');
 
-const WALLET_ADDRESS = 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt';
-const USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-const TRONGRID_URL = `https://api.trongrid.io/v1/accounts/${WALLET_ADDRESS}/transactions/trc20`;
+const FALLBACK_WALLET = 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt';
+const FALLBACK_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 const POLL_INTERVAL = 20000; // 20 saniye
 
 // Son işlenen transaction ID'lerini tut (tekrar işlemeyi önle)
@@ -12,6 +11,11 @@ const processedTxIds = new Set();
 
 const checkTransactions = async () => {
   try {
+    // DB'den cüzdan ve kontrat adresini oku
+    const WALLET_ADDRESS = await Settings.getSetting('wallet_address') || FALLBACK_WALLET;
+    const USDT_CONTRACT = await Settings.getSetting('usdt_contract') || FALLBACK_CONTRACT;
+    const TRONGRID_URL = `https://api.trongrid.io/v1/accounts/${WALLET_ADDRESS}/transactions/trc20`;
+
     const pendingPayments = await Payment.find({
       status: 'Beklemede',
       type: 'deposit',
@@ -19,7 +23,7 @@ const checkTransactions = async () => {
 
     if (pendingPayments.length === 0) return;
 
-    // Süresi dolmuş ödemeleri işaretle (2 saat)
+    // Süresi dolmuş ödemeleri işaretle
     const now = new Date();
     for (const payment of pendingPayments) {
       if (payment.expiresAt && now > payment.expiresAt) {
@@ -35,9 +39,9 @@ const checkTransactions = async () => {
     );
     if (activePending.length === 0) return;
 
-    logger.info(`Checking TronGrid... ${activePending.length} pending payment(s). Amounts: [${activePending.map(p => p.uniqueAmount).join(', ')}]`);
+    logger.info(`Checking TronGrid... ${activePending.length} pending payment(s). Wallet: ${WALLET_ADDRESS}`);
 
-    // TronGrid'den SON işlemleri çek - min_timestamp KULLANMA, son 50 işlemi al
+    // TronGrid'den SON işlemleri çek
     const response = await axios.get(TRONGRID_URL, {
       params: {
         only_to: true,
@@ -51,7 +55,6 @@ const checkTransactions = async () => {
     logger.info(`TronGrid returned ${transactions.length} transaction(s)`);
 
     for (const tx of transactions) {
-      // Bu işlemi daha önce işledik mi?
       if (processedTxIds.has(tx.transaction_id)) continue;
       if (tx.to !== WALLET_ADDRESS) continue;
 

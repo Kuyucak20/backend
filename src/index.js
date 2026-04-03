@@ -4,11 +4,13 @@ mongoose.set("bufferCommands", false);
 const app = require("./app");
 const config = require("./config/config");
 const logger = require("./config/logger");
-const { tronService } = require("./services");
+const { tronService, settingsService } = require("./services");
 
 let server;
-mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
+mongoose.connect(config.mongoose.url, config.mongoose.options).then(async () => {
   logger.info("Connected to MongoDB");
+  // Varsayılan ayarları oluştur (yoksa)
+  await settingsService.initDefaults();
   server = app.listen(process.env.PORT || config.port, () => {
     logger.info(`Listening to port ${config.port}`);
     // TronGrid ödeme dinlemeyi başlat
