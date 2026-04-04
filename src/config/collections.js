@@ -8,4 +8,5 @@ module.exports.COLLECTIONS = {
   payments: "50k_payments",
   contacts: "50k_contacts",
   settings: "50k_settings",
+  activities: "50k_activities",
 };

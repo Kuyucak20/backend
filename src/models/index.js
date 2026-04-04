@@ -4,3 +4,4 @@ module.exports.Land = require('./land.model');
 module.exports.Contact = require('./contact.model');
 module.exports.Payment = require('./payment.model');
 module.exports.Settings = require('./settings.model');
+module.exports.Activity = require('./activity.model');
