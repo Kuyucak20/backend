@@ -78,6 +78,29 @@ const buyLand = catchAsync(async (req, res) => {
     sellLockUntil,
   });
 
+  // Referans sistemi: kullanicinin ilk arsasi ise ve referredBy varsa
+  // davet edenin referralCount'unu artir
+  if (lastLands.length === 1 && user.referredBy) {
+    const referrer = await userService.getUserByReferralCode(user.referredBy);
+    if (referrer) {
+      const newCount = (referrer.referralCount || 0) + 1;
+
+      if (newCount >= 2) {
+        // 2 kisi arsa aldi -> davet edene arsa fiyati kadar bakiye ver
+        const rewardAmount = landPrice;
+        const newReferrerBalance = (referrer.balance || 0) + rewardAmount;
+        await userService.updateUserById(referrer.id, {
+          referralCount: 0,
+          balance: newReferrerBalance,
+        });
+      } else {
+        await userService.updateUserById(referrer.id, {
+          referralCount: newCount,
+        });
+      }
+    }
+  }
+
   res.send({ message: 'Land purchased successfully', landId: land.landId });
 });
 
@@ -172,7 +195,7 @@ const getReferralInfo = catchAsync(async (req, res) => {
   res.send({
     referralCode: user.referralCode,
     referralCount: user.referralCount,
-    neededForFreeLand: 2 - user.referralCount,
+    neededForReward: Math.max(0, 2 - (user.referralCount || 0)),
   });
 });
 

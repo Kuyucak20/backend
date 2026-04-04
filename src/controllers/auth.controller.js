@@ -41,42 +41,8 @@ const register = catchAsync(async (req, res) => {
 
   const user = await userService.createUser(req.body);
 
-  // Handle referral logic (davet edenin kodu inviteCode)
-  if (inviteCode) {
-    const referrer = await userService.getUserByReferralCode(inviteCode);
-    if (referrer) {
-      const newReferralCount = referrer.referralCount + 1;
-
-      if (newReferralCount >= 2) {
-        // Give the referrer a free land
-        const availableLand = await landService.getLandByState('Satılık');
-        if (availableLand) {
-          availableLand.owner = referrer.username;
-          availableLand.ownerId = referrer.id;
-          availableLand.state = 'Satıldı';
-          availableLand.purchaseDate = new Date();
-          await availableLand.save();
-
-          const referrerLands = referrer.lands || [];
-          referrerLands.push({ landId: availableLand.landId, id: availableLand.id });
-
-          await userService.updateUserById(referrer.id, {
-            referralCount: 0,
-            lands: referrerLands,
-          });
-        } else {
-          // No available land, just reset count
-          await userService.updateUserById(referrer.id, {
-            referralCount: 0,
-          });
-        }
-      } else {
-        await userService.updateUserById(referrer.id, {
-          referralCount: newReferralCount,
-        });
-      }
-    }
-  }
+  // Referral: sadece referredBy kaydedilir.
+  // Referans sayaci, davet edilen kisi ilk arsasini aldiginda artacak (buyLand icinde).
 
   const tokens = await tokenService.generateAuthTokens(user);
   res.status(httpStatus.CREATED).send({ user, tokens });
