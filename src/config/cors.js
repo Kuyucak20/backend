@@ -11,6 +11,8 @@ function parseCorsOrigins() {
     "http://127.0.0.1:3000",
     "https://gelecekarsa.com",
     "https://www.gelecekarsa.com",
+    "https://gelecekdigital.com",
+    "https://www.gelecekdigital.com",
   ];
   return [...new Set([...defaults, ...fromEnv])];
 }

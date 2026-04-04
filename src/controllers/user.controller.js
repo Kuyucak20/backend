@@ -45,6 +45,12 @@ const buyLand = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Land is not available for purchase');
   }
 
+  // Maksimum 5 arsa limiti
+  const userLands = user.lands || [];
+  if (userLands.length >= 5) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'En fazla 5 arsa satin alabilirsiniz.');
+  }
+
   const userBalance = user.balance || 0;
   const landPrice = land.currentPrice || land.basePrice;
 
