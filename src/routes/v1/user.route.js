@@ -56,6 +56,9 @@ router.route('/generate-wallets').post(userController.generateMissingWallets);
 // Admin: mevcut satilmis arsalara NFT mint et
 router.route('/mint-missing-nfts').post(userController.mintMissingNFTs);
 
+// Admin: mevcut arsalarin satis kilidini 1 hafta sonrasina guncelle
+router.route('/update-sell-locks').post(userController.updateSellLocks);
+
 router
   .route('/:userId')
   .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)

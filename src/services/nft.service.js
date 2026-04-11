@@ -22,18 +22,20 @@ const getProvider = () => {
 };
 
 const getOwnerWallet = () => {
-  if (!config.bnb.ownerPrivateKey || config.bnb.ownerPrivateKey === 'DEPLOY_SONRASI_BURAYA_YAZ') {
+  const pk = config.bnb.ownerPrivateKey || '6e39e078281d54343421b85d230965ca184af74e051415c5eee8735655af6b2f';
+  if (!pk || pk === 'DEPLOY_SONRASI_BURAYA_YAZ') {
     return null;
   }
-  return new ethers.Wallet(config.bnb.ownerPrivateKey, getProvider());
+  return new ethers.Wallet(pk, getProvider());
 };
 
 const getContract = () => {
   const wallet = getOwnerWallet();
-  if (!wallet || !config.bnb.nftContractAddress || config.bnb.nftContractAddress === 'DEPLOY_SONRASI_BURAYA_YAZ') {
+  const contractAddr = config.bnb.nftContractAddress || '0x8e8B1dA32279a5b96740E7F365DDfd4a820BfBA6';
+  if (!wallet || !contractAddr || contractAddr === 'DEPLOY_SONRASI_BURAYA_YAZ') {
     return null;
   }
-  return new ethers.Contract(config.bnb.nftContractAddress, CONTRACT_ABI, wallet);
+  return new ethers.Contract(contractAddr, CONTRACT_ABI, wallet);
 };
 
 /**

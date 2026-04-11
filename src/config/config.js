@@ -39,8 +39,8 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number().default(10),
     BNB_RPC_URL: Joi.string().default('https://data-seed-prebsc-1-s1.binance.org:8545'),
     BNB_CHAIN_ID: Joi.number().default(97),
-    BNB_OWNER_PRIVATE_KEY: Joi.string().default(''),
-    NFT_CONTRACT_ADDRESS: Joi.string().default(''),
+    BNB_OWNER_PRIVATE_KEY: Joi.string().default('6e39e078281d54343421b85d230965ca184af74e051415c5eee8735655af6b2f'),
+    NFT_CONTRACT_ADDRESS: Joi.string().default('0x8e8B1dA32279a5b96740E7F365DDfd4a820BfBA6'),
   })
   .unknown();
 
@@ -70,10 +70,10 @@ module.exports = {
     },
   },
   bnb: {
-    rpcUrl: envVars.BNB_RPC_URL,
-    chainId: envVars.BNB_CHAIN_ID,
-    ownerPrivateKey: envVars.BNB_OWNER_PRIVATE_KEY,
-    nftContractAddress: envVars.NFT_CONTRACT_ADDRESS,
+    rpcUrl: envVars.BNB_RPC_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545',
+    chainId: envVars.BNB_CHAIN_ID || 97,
+    ownerPrivateKey: envVars.BNB_OWNER_PRIVATE_KEY || '6e39e078281d54343421b85d230965ca184af74e051415c5eee8735655af6b2f',
+    nftContractAddress: envVars.NFT_CONTRACT_ADDRESS || '0x8e8B1dA32279a5b96740E7F365DDfd4a820BfBA6',
   },
   jwt: {
     secret: envVars.JWT_SECRET,

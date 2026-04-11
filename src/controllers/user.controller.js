@@ -557,6 +557,22 @@ const getListedLands = catchAsync(async (req, res) => {
   res.send(lands);
 });
 
+// Mevcut satilmis arsalarin sellLockUntil degerini guncelle
+const updateSellLocks = catchAsync(async (req, res) => {
+  const { Land } = require('../models');
+  const oneWeekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  const result = await Land.updateMany(
+    { state: 'Satıldı', isReferralReward: { $ne: true } },
+    { $set: { sellLockUntil: oneWeekFromNow } }
+  );
+
+  res.send({
+    message: `${result.modifiedCount} arsanin satis kilidi 1 hafta sonrasina guncellendi`,
+    newSellLockUntil: oneWeekFromNow,
+  });
+});
+
 module.exports = {
   createUser,
   getUsers,
@@ -575,6 +591,7 @@ module.exports = {
   processWithdrawal,
   generateMissingWallets,
   mintMissingNFTs,
+  updateSellLocks,
   getListedLands,
   createContact,
   addBalance,
