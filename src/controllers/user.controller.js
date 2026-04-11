@@ -312,9 +312,10 @@ const listLandForSale = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Arsayi satin aldiktan sonra 1 gun beklemeniz gerekiyor');
   }
 
-  // Satis fiyati: guncel deger (gun bazli %2 artis) + %2 kar marji
-  const currentValue = calculateCurrentPrice(land.basePrice, land.purchaseDate);
-  const salePrice = parseFloat((currentValue * 1.02).toFixed(2));
+  // Guncel deger hesapla (gunluk %2 bilesik artis)
+  const currentValue = calculateCurrentPrice(land.basePrice || 249, land.purchaseDate);
+  // Satis fiyati: guncel deger (zaten %2 gunluk artis iceriyor)
+  const salePrice = parseFloat(currentValue.toFixed(2));
 
   await landService.updateLandByLandId(landId, {
     listedForSale: true,

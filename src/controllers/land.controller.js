@@ -20,7 +20,12 @@ const getPositionLand = catchAsync(async (req, res) => {
   if (!land) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Land not found');
   }
-  res.send(land);
+  // Guncel fiyati hesapla ve ekle
+  const landObj = land.toObject ? land.toObject() : { ...land };
+  if (landObj.purchaseDate && landObj.state !== 'Satılık') {
+    landObj.currentPrice = calculateCurrentPrice(landObj.basePrice || 249, landObj.purchaseDate);
+  }
+  res.send(landObj);
 });
 
 const initializeLands = catchAsync(async (req, res) => {

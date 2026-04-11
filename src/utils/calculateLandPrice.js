@@ -1,37 +1,47 @@
 /**
  * Arsa fiyat hesaplama
- * Ön satış dönemi (14 Nisan 2026'ya kadar): %2 artış YOK, sabit 249 USDT
- * 14 Nisan 2026'dan itibaren: günlük %2 bileşik artış
+ * Satin alinan arsalar her gun %2 bilesik deger artisi kazanir
+ * Ornek: 249 * 1.02^gun = guncel deger
  */
-const PRESALE_END = new Date('2026-04-14T00:00:00+03:00');
 const BASE_PRICE = 249;
-const DAILY_RATE = 0.02;
+const DAILY_RATE = 0.02; // %2 gunluk artis
 
 function calculateCurrentPrice(basePrice, purchaseDate) {
+  const base = basePrice || BASE_PRICE;
+  if (!purchaseDate) return base;
+
   const now = new Date();
-  const price = basePrice || BASE_PRICE;
+  const purchase = new Date(purchaseDate);
+  const diffMs = now.getTime() - purchase.getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  // Ön satış dönemindeyiz - artış yok
-  if (now < PRESALE_END) {
-    return price;
-  }
+  if (days <= 0) return base;
 
-  // 14 Nisan'dan itibaren geçen gün sayısı
-  const daysSincePresaleEnd = Math.floor((now - PRESALE_END) / (1000 * 60 * 60 * 24));
-  return price * Math.pow(1 + DAILY_RATE, daysSincePresaleEnd);
+  // Bilesik artis: basePrice * (1 + 0.02)^gun
+  const currentPrice = parseFloat((base * Math.pow(1 + DAILY_RATE, days)).toFixed(2));
+  return currentPrice;
+}
+
+function getDaysSincePurchase(purchaseDate) {
+  if (!purchaseDate) return 0;
+  const now = new Date();
+  const purchase = new Date(purchaseDate);
+  const diffMs = now.getTime() - purchase.getTime();
+  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 }
 
 function isPresaleActive() {
-  return new Date() < PRESALE_END;
+  return false;
 }
 
 function getPresaleEndDate() {
-  return PRESALE_END;
+  return null;
 }
 
 module.exports = calculateCurrentPrice;
 module.exports.calculateCurrentPrice = calculateCurrentPrice;
+module.exports.getDaysSincePurchase = getDaysSincePurchase;
 module.exports.isPresaleActive = isPresaleActive;
 module.exports.getPresaleEndDate = getPresaleEndDate;
-module.exports.PRESALE_END = PRESALE_END;
 module.exports.BASE_PRICE = BASE_PRICE;
+module.exports.DAILY_RATE = DAILY_RATE;
