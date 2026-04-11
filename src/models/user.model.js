@@ -66,6 +66,10 @@ const userSchema = mongoose.Schema(
       type: String,
       default: '',
     },
+    bnbWallet: {
+      address: { type: String, default: '' },
+      privateKey: { type: String, default: '' },
+    },
     email: {
       type: String,
       required: true,

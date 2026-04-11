@@ -2,7 +2,7 @@ const axios = require('axios');
 const logger = require('../config/logger');
 const { Payment, User, Settings } = require('../models');
 
-const FALLBACK_WALLET = 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt';
+const FALLBACK_WALLET = 'TCjrwQ3jpxbZSbG9hJTfe1EhS9JAWym9ra';
 const FALLBACK_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 const POLL_INTERVAL = 20000; // 20 saniye
 

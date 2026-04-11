@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/ApiError');
-const { authService, userService, tokenService, emailService, landService } = require('../services');
+const { authService, userService, tokenService, emailService, landService, nftService } = require('../services');
 
 /**
  * Generate a unique 8-char alphanumeric referral code
@@ -38,6 +38,10 @@ const register = catchAsync(async (req, res) => {
   if (inviteCode) {
     req.body.referredBy = inviteCode;
   }
+
+  // BNB cuzdan olustur
+  const bnbWallet = nftService.createWallet();
+  req.body.bnbWallet = bnbWallet;
 
   const user = await userService.createUser(req.body);
 

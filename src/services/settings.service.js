@@ -24,7 +24,7 @@ const setSetting = async (key, value) => {
 
 const getWalletAddress = async () => {
   const addr = await Settings.getSetting('wallet_address');
-  return addr || 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt'; // fallback
+  return addr || 'TCjrwQ3jpxbZSbG9hJTfe1EhS9JAWym9ra'; // fallback
 };
 
 const getUsdtContract = async () => {

@@ -9,4 +9,5 @@ module.exports.COLLECTIONS = {
   contacts: "50k_contacts",
   settings: "50k_settings",
   activities: "50k_activities",
+  withdrawals: "50k_withdrawals",
 };

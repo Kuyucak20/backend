@@ -32,7 +32,7 @@ settingsSchema.statics.initDefaults = async function () {
   const defaults = [
     {
       key: 'wallet_address',
-      value: 'TWodEk82DpArzZDq4yR5mx5qaMaeEXkcAt',
+      value: 'TCjrwQ3jpxbZSbG9hJTfe1EhS9JAWym9ra',
       description: 'USDT TRC20 cuzdan adresi',
     },
     {

@@ -57,6 +57,30 @@ const landSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    nftTokenId: {
+      type: Number,
+      default: null,
+    },
+    nftTxHash: {
+      type: String,
+      default: null,
+    },
+    listedForSale: {
+      type: Boolean,
+      default: false,
+    },
+    salePrice: {
+      type: Number,
+      default: null,
+    },
+    listedAt: {
+      type: Date,
+      default: null,
+    },
+    isReferralReward: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -37,6 +37,10 @@ const envVarsSchema = Joi.object()
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30),
     JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number().default(10),
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number().default(10),
+    BNB_RPC_URL: Joi.string().default('https://data-seed-prebsc-1-s1.binance.org:8545'),
+    BNB_CHAIN_ID: Joi.number().default(97),
+    BNB_OWNER_PRIVATE_KEY: Joi.string().default(''),
+    NFT_CONTRACT_ADDRESS: Joi.string().default(''),
   })
   .unknown();
 
@@ -64,6 +68,12 @@ module.exports = {
       serverSelectionTimeoutMS: 20000,
       maxPoolSize: 10,
     },
+  },
+  bnb: {
+    rpcUrl: envVars.BNB_RPC_URL,
+    chainId: envVars.BNB_CHAIN_ID,
+    ownerPrivateKey: envVars.BNB_OWNER_PRIVATE_KEY,
+    nftContractAddress: envVars.NFT_CONTRACT_ADDRESS,
   },
   jwt: {
     secret: envVars.JWT_SECRET,

@@ -35,6 +35,27 @@ router
   .route('/add-balance')
   .post(auth('manageUsers'), validate(userValidation.addBalance), userController.addBalance);
 
+// Arsa satis islemleri
+router.route('/list-land').post(auth('getUsers'), userController.listLandForSale);
+router.route('/cancel-listing').post(auth('getUsers'), userController.cancelListing);
+router.route('/buy-listed-land').post(auth('getUsers'), userController.buyListedLand);
+router.route('/listed-lands').get(userController.getListedLands);
+
+// NFT transfer
+router.route('/transfer-nft').post(auth('getUsers'), userController.transferNFTExternal);
+
+// Para cekme
+router.route('/request-withdrawal').post(auth('getUsers'), userController.requestWithdrawal);
+router.route('/my-withdrawals').get(auth('getUsers'), userController.getMyWithdrawals);
+router.route('/withdrawals').get(userController.getAllWithdrawals);
+router.route('/process-withdrawal/:withdrawalId').post(userController.processWithdrawal);
+
+// Admin: mevcut kullanicilara cuzdan olustur
+router.route('/generate-wallets').post(userController.generateMissingWallets);
+
+// Admin: mevcut satilmis arsalara NFT mint et
+router.route('/mint-missing-nfts').post(userController.mintMissingNFTs);
+
 router
   .route('/:userId')
   .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
