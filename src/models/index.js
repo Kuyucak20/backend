@@ -6,3 +6,4 @@ module.exports.Payment = require('./payment.model');
 module.exports.Settings = require('./settings.model');
 module.exports.Activity = require('./activity.model');
 module.exports.Withdrawal = require('./withdrawal.model');
+module.exports.Ticket = require('./ticket.model');
