@@ -27,7 +27,37 @@ const getUser = catchAsync(async (req, res) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  res.send(user);
+
+  // Kullanicinin arsalarini Land modelinden zenginlestir
+  const userObj = user.toObject ? user.toObject() : { ...user };
+  if (userObj.lands && userObj.lands.length > 0) {
+    const { Land } = require('../models');
+    const enrichedLands = await Promise.all(
+      userObj.lands.map(async (landRef) => {
+        const landData = await Land.findOne({ landId: landRef.landId });
+        if (landData) {
+          const currentPrice = calculateCurrentPrice(landData.basePrice || 249, landData.purchaseDate);
+          return {
+            landId: landRef.landId,
+            id: landRef.id,
+            price: landData.basePrice || 249,
+            purchaseDate: landData.purchaseDate,
+            currentPrice,
+            island: landData.island || null,
+            nftTokenId: landData.nftTokenId || null,
+            listedForSale: landData.listedForSale || false,
+            salePrice: landData.salePrice || null,
+            sellLockUntil: landData.sellLockUntil || null,
+            isReferralReward: landData.isReferralReward || false,
+          };
+        }
+        return landRef;
+      })
+    );
+    userObj.lands = enrichedLands;
+  }
+
+  res.send(userObj);
 });
 
 const buyLand = catchAsync(async (req, res) => {
