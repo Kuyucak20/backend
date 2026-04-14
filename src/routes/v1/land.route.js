@@ -38,4 +38,8 @@ router
   .route('/initialize-new')
   .post(landController.initializeNewLands);
 
+router
+  .route('/sale-history')
+  .get(landController.getSaleHistory);
+
 module.exports = router;

@@ -106,6 +106,14 @@ const assignLandIds = catchAsync(async (req, res) => {
   res.send({ message: `${updated} arsa guncellendi`, totalRows: uniqueY.length, totalCols: uniqueX.length });
 });
 
+// Son satilan NFT'lerin gecmisi
+const getSaleHistory = catchAsync(async (req, res) => {
+  const { SaleHistory } = require('../models');
+  const limit = parseInt(req.query.limit) || 20;
+  const history = await SaleHistory.find().sort({ soldAt: -1 }).limit(limit);
+  res.send(history);
+});
+
 module.exports = {
   createLand,
   getLand,
@@ -115,4 +123,5 @@ module.exports = {
   getLandValue,
   assignLandIds,
   initializeNewLands,
+  getSaleHistory,
 };

@@ -394,6 +394,28 @@ const buyListedLand = catchAsync(async (req, res) => {
     listedAt: null,
   });
 
+  // Satis gecmisi kaydi
+  try {
+    const { SaleHistory } = require('../models');
+    const basePrice = land.basePrice || 249;
+    const profit = salePrice - basePrice;
+    const profitPercent = parseFloat(((profit / basePrice) * 100).toFixed(1));
+    await SaleHistory.create({
+      landId: land.landId,
+      island: land.island || null,
+      nftTokenId: land.nftTokenId || null,
+      sellerName: seller.name + ' ' + (seller.surname || ''),
+      buyerName: buyer.name + ' ' + (buyer.surname || ''),
+      basePrice,
+      salePrice,
+      profit,
+      profitPercent,
+      soldAt: new Date(),
+    });
+  } catch (histErr) {
+    console.error('Sale history save failed:', histErr.message);
+  }
+
   // NFT transfer
   if (land.nftTokenId && seller.bnbWallet?.address && buyer.bnbWallet?.address) {
     try {
