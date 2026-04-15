@@ -34,12 +34,23 @@ const getUser = catchAsync(async (req, res) => {
     const { Land } = require('../models');
     const enrichedLands = await Promise.all(
       userObj.lands.map(async (landRef) => {
-        const landData = await Land.findOne({ landId: landRef.landId });
+        // Hem landId hem id ile ara (eski kayitlarda landId olmayabilir)
+        let landData = null;
+        if (landRef.landId) {
+          landData = await Land.findOne({ landId: landRef.landId });
+        }
+        if (!landData && landRef.id) {
+          landData = await Land.findById(landRef.id).catch(() => null);
+        }
+        if (!landData && landRef._id) {
+          landData = await Land.findById(landRef._id).catch(() => null);
+        }
+
         if (landData) {
           const currentPrice = calculateCurrentPrice(landData.basePrice || 249, landData.purchaseDate);
           return {
-            landId: landRef.landId,
-            id: landRef.id,
+            landId: landData.landId || landRef.landId,
+            id: landData._id || landRef.id,
             price: landData.basePrice || 249,
             purchaseDate: landData.purchaseDate,
             currentPrice,
